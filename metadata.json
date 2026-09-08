@@ -1,0 +1,6 @@
+{
+  "name": "Geozine",
+  "description": "Geozine — Notícias, inteligência e inovação geoespacial. O radar diário das geotecnologias.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

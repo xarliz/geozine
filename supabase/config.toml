@@ -1,0 +1,5 @@
+project_id = "geozine"
+
+[functions.admin-users]
+verify_jwt = true
+

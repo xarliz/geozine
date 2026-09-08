@@ -1,0 +1,41 @@
+name: Buscar notícias
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Pesquisar e processar notícias
+        id: ingest
+        run: pnpm ingest
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Atualizar SEO publicado
+        if: steps.ingest.outputs.due == 'true'
+        run: gh workflow run deploy.yml -f reason=content
+        env:
+          GH_TOKEN: ${{ github.token }}
+
